@@ -1,0 +1,67 @@
+import { useEffect, useState } from "react";
+import "./App.css";
+import axios from "axios";
+
+function App() {
+  const [data, setData] = useState([]);
+  const [error, setError] = useState(false);
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:3000",
+    timeout: 50000,
+  });
+
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `excel/filterExcelData?key=pub_objectuai&value=A00000E994`,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache",
+          },
+        }
+      );
+
+      console.log("Data successfully fetched:", response.data.data);
+      setData(response.data.data);
+      setError(false);
+    } catch (error) {
+      console.error("Error fetching data:", error.message);
+      setError(true);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  return (
+    <div>
+      <h1 className="font-bold">Number of items: {data.length}</h1>
+      <table className="text-center">
+        <thead>
+          <tr>
+            <th className="border-8 p-4">pub_sourcetimestamp</th>
+            <th className="border-8 p-4">pub_objectuai</th>
+            <th className="border-8 p-4">ActTotalActivePower</th>
+            <th className="border-8 p-4">Software_LineNumber</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index}>
+              <td className="border-8 p-4">{item.pub_sourcetimestamp}</td>
+              <td className="border-8 p-4">{item.pub_objectuai}</td>
+              <td className="border-8 p-4">{item.ActTotalActivePower}</td>
+              <td className="border-8 p-4">{item.Software_LineNumber}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {error && <p>Error fetching data</p>}
+    </div>
+  );
+}
+
+export default App;
